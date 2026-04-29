@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Agri DSS Dashboard</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+
+        .title-box {
+            position: absolute;
+            top: 10px;
+            left: 60px;
+            z-index: 1000;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        .legend {
+            position: absolute;
+            bottom: 30px;
+            left: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            line-height: 22px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        .legend span {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="title-box">Agricultural DSS Dashboard - Thanjavur</div>
+
+<div id="map"></div>
+
+<div class="legend">
+    <b>DSS Suitability</b><br>
+    <span style="background:#ffff00;"></span> Very Low<br>
+    <span style="background:#ff9900;"></span> Low<br>
+    <span style="background:#ff3366;"></span> Moderate<br>
+    <span style="background:#0000ff;"></span> High<br>
+    <hr>
+    <b>Boundary</b><br>
+    <span style="border:2px solid black; background:white;"></span> Thanjavur
+</div>
+
+<script>
+    var map = L.map('map').setView([10.8, 79.1], 9);
+
+    var osm = L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        {
+            attribution: '© OpenStreetMap'
+        }
+    ).addTo(map);
+
+    var dssLayer = L.tileLayer.wms(
+        "http://localhost:8080/geoserver/agri_project/wms",
+        {
+            layers: "agri_project:dss_class",
+            styles: "dss_final",
+            format: "image/png",
+            transparent: true,
+            opacity: 0.85
+        }
+    ).addTo(map);
+
+    var boundaryLayer = L.tileLayer.wms(
+    "http://localhost:8080/geoserver/agri_project/wms",
+    {
+        layers: "agri_project:Thanjavur",   // ✅ CORRECT NAME
+        styles: "boundary_style",           // your style
+        format: "image/png",
+        transparent: true,
+        opacity: 1
+    }
+).addTo(map);
+
+    var baseMaps = {
+        "OpenStreetMap": osm
+    };
+
+    var overlayMaps = {
+        "DSS Suitability Map": dssLayer,
+        "Thanjavur Boundary": boundaryLayer
+    };
+
+    L.control.layers(baseMaps, overlayMaps).addTo(map);
+</script>
+
+</body>
+</html>
